@@ -9,12 +9,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "ponder": "^0.9"
+    "hono": "^4",
+    "ponder": "^0.16"
   },
   "devDependencies": {
-    "@types/node": "^22",
-    "typescript": "^5.4",
+    "@types/node": "^25",
+    "typescript": "^6",
     "viem": "^2",
-    "vitest": "^3"
+    "vitest": "^4"
   }
 }
