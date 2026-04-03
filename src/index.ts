@@ -60,9 +60,9 @@ async function getBlockTimestamps(
 }
 
 async function main() {
-  const rpcUrl = process.env.RPC_URL;
+  const rpcUrl = process.env.BASE_RPC_URL;
   if (!rpcUrl) {
-    console.error("Set RPC_URL environment variable (e.g. RPC_URL=https://mainnet.base.org)");
+    console.error("Set BASE_RPC_URL environment variable");
     process.exit(1);
   }
 
