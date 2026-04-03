@@ -4,18 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "ponder dev",
-    "start": "ponder start",
+    "index": "tsx src/index.ts",
     "test": "vitest run"
   },
   "dependencies": {
-    "hono": "^4",
-    "ponder": "^0.16"
+    "viem": "^2"
   },
   "devDependencies": {
     "@types/node": "^25",
+    "tsx": "^4",
     "typescript": "^6",
-    "viem": "^2",
     "vitest": "^4"
   }
 }
