@@ -6,12 +6,13 @@ Index CarbonSwap and CarbonRetiredViaRA events from the Klima Protocol AssetMana
 
 ```
 npm install
+echo 'BASE_RPC_URL=https://...' > .env
 ```
 
 ## Usage
 
 ```
-BASE_RPC_URL=https://... npm run index
+npm run index
 ```
 
 Writes `data/carbon_swaps.csv` and `data/retirements.csv`. Tracks progress in `data/cursor.json` — subsequent runs only fetch new blocks.
