@@ -15,7 +15,7 @@ echo 'BASE_RPC_URL=https://...' > .env
 npm run index
 ```
 
-Writes `data/swaps.csv` and `data/retirements.csv`. Tracks progress in `data/cursor.json` — subsequent runs only fetch new blocks.
+Writes `data/swaps.csv`, `data/retirements.csv`, and `data/contracts.csv` (address → name lookup). Tracks progress in `data/cursor.json` — subsequent runs only fetch new blocks.
 
 ## Tests
 

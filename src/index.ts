@@ -1,4 +1,4 @@
-import { createPublicClient, http } from "viem";
+import { createPublicClient, http, parseAbi } from "viem";
 import { base } from "viem/chains";
 import { AssetManagerDiamondAbi } from "../abis/AssetManagerDiamond.ts";
 import * as fs from "node:fs";
@@ -12,6 +12,7 @@ const DATA_DIR = "data";
 const CURSOR_PATH = path.join(DATA_DIR, "cursor.json");
 const SWAPS_CSV = path.join(DATA_DIR, "swaps.csv");
 const RETIREMENTS_CSV = path.join(DATA_DIR, "retirements.csv");
+const CONTRACTS_CSV = path.join(DATA_DIR, "contracts.csv");
 
 const SWAP_HEADER =
   "block_number,timestamp,tx_hash,log_index,carbon_class,credit,quoter,token_id,tonnage_amount,kvcm_amount,recipient\n";
@@ -63,6 +64,46 @@ async function getBlockTimestamps(
   return timestamps;
 }
 
+const nameAbi = parseAbi(["function name() view returns (string)"]);
+
+function readKnownContracts(): Set<string> {
+  try {
+    const content = fs.readFileSync(CONTRACTS_CSV, "utf-8");
+    const addresses = content.split("\n").slice(1).map((line) => line.split(",")[0]).filter(Boolean);
+    return new Set(addresses);
+  } catch {
+    return new Set();
+  }
+}
+
+async function resolveNames(
+  client: ReturnType<typeof createPublicClient>,
+  addresses: Set<string>,
+): Promise<void> {
+  const existing = readKnownContracts();
+  const newAddresses = [...addresses].filter((a) => !existing.has(a));
+  if (newAddresses.length === 0) return;
+
+  const isNew = existing.size === 0;
+  const rows: string[] = [];
+  if (isNew) rows.push("address,name\n");
+
+  for (const address of newAddresses) {
+    let name = "";
+    try {
+      name = await client.readContract({
+        address: address as `0x${string}`,
+        abi: nameAbi,
+        functionName: "name",
+      });
+    } catch {}
+    rows.push(`${address},${csvEscape(name)}\n`);
+  }
+
+  fs.appendFileSync(CONTRACTS_CSV, rows.join(""));
+  console.log(`Resolved ${newAddresses.length} new contract name(s) → ${CONTRACTS_CSV}`);
+}
+
 async function main() {
   const rpcUrl = process.env.BASE_RPC_URL;
   if (!rpcUrl) {
@@ -89,6 +130,7 @@ async function main() {
 
   console.log(`Indexing blocks ${fromBlock} to ${head}...`);
 
+  const knownContracts = readKnownContracts();
   let totalSwaps = 0;
   let totalRetirements = 0;
 
@@ -116,6 +158,11 @@ async function main() {
         ...retirementLogs.map((l) => l.blockNumber),
       ];
       const timestamps = await getBlockTimestamps(client, allBlockNumbers);
+
+      for (const log of [...swapLogs, ...retirementLogs]) {
+        knownContracts.add(log.args.carbonClass);
+        knownContracts.add(log.args.credit);
+      }
 
       if (swapLogs.length > 0) {
         const rows = swapLogs.map((log) => {
@@ -169,6 +216,8 @@ async function main() {
       );
     }
   }
+
+  await resolveNames(client, knownContracts);
 
   console.log(
     `Done. Indexed blocks ${fromBlock} to ${head}: ${totalSwaps} swaps, ${totalRetirements} retirements.`,
