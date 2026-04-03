@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "paths": {
+      "ponder:registry": ["./node_modules/ponder/dist/index.d.ts"],
+      "ponder:schema": ["./ponder.schema.ts"]
+    }
+  },
+  "include": ["ponder.config.ts", "ponder.schema.ts", "src/**/*.ts", "test/**/*.ts"]
+}
