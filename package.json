@@ -5,14 +5,13 @@
   "type": "module",
   "scripts": {
     "index": "node --experimental-strip-types src/index.ts",
-    "test": "vitest run"
+    "test": "node --experimental-strip-types --test test/*.test.ts"
   },
   "dependencies": {
     "viem": "^2"
   },
   "devDependencies": {
     "@types/node": "^25",
-    "typescript": "^6",
-    "vitest": "^4"
+    "typescript": "^6"
   }
 }
