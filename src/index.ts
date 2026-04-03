@@ -1,4 +1,4 @@
-import { createPublicClient, http, type Log } from "viem";
+import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import { AssetManagerDiamondAbi } from "../abis/AssetManagerDiamond.js";
 import * as fs from "node:fs";
@@ -19,6 +19,8 @@ const RETIREMENT_HEADER =
   "block_number,timestamp,tx_hash,log_index,carbon_class,credit,quoter,token_id,tonnage_amount,retiring_entity,retiring_reason\n";
 
 const [swapEvent, retirementEvent] = AssetManagerDiamondAbi;
+
+const bigMin = (a: bigint, b: bigint) => (a < b ? a : b);
 
 function csvEscape(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -41,8 +43,10 @@ function writeCursor(lastBlock: bigint): void {
 }
 
 function ensureCsvHeader(filePath: string, header: string): void {
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, header);
+  try {
+    fs.writeFileSync(filePath, header, { flag: "ax" });
+  } catch (e: unknown) {
+    if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e;
   }
 }
 
@@ -89,7 +93,7 @@ async function main() {
   let totalRetirements = 0;
 
   for (let batchStart = fromBlock; batchStart <= head; batchStart += BATCH_SIZE) {
-    const batchEnd = batchStart + BATCH_SIZE - 1n < head ? batchStart + BATCH_SIZE - 1n : head;
+    const batchEnd = bigMin(batchStart + BATCH_SIZE - 1n, head);
 
     const [swapLogs, retirementLogs] = await Promise.all([
       client.getLogs({
