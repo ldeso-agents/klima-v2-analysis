@@ -1,6 +1,6 @@
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import { AssetManagerDiamondAbi } from "../abis/AssetManagerDiamond.js";
+import { AssetManagerDiamondAbi } from "../abis/AssetManagerDiamond.ts";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
