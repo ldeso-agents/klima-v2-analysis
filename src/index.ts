@@ -10,7 +10,7 @@ const BATCH_SIZE = 10_000n;
 
 const DATA_DIR = "data";
 const CURSOR_PATH = path.join(DATA_DIR, "cursor.json");
-const SWAPS_CSV = path.join(DATA_DIR, "carbon_swaps.csv");
+const SWAPS_CSV = path.join(DATA_DIR, "swaps.csv");
 const RETIREMENTS_CSV = path.join(DATA_DIR, "retirements.csv");
 
 const SWAP_HEADER =
